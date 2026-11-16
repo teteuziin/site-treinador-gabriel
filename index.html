@@ -208,10 +208,10 @@ nav.main a:hover{color:var(--lima)}
 
 /* ============ SARCOPENIA ============ */
 .sarco{background:var(--osso);color:#141410}
-.sarco .sec-tag{color:#5c7a00}
-.sarco .sec-tag::before{background:#5c7a00}
-.sarco h2 .hl{color:#5c7a00}
-.sarco .sec-sub{color:rgba(20,20,16,.66)}
+.sarco .sec-tag{color:#4a6600}
+.sarco .sec-tag::before{background:#4a6600}
+.sarco h2 .hl{color:#4a6600}
+.sarco .sec-sub{color:rgba(20,20,16,.74)}
 .sarco-grid{display:grid;gap:48px;align-items:start}
 .sarco-points{display:grid;gap:16px;margin-top:32px}
 .sarco-points div{border:2px solid #141410;border-radius:8px;padding:24px;background:transparent;transition:background-color .2s ease,transform .2s ease}
@@ -259,7 +259,7 @@ nav.main a:hover{color:var(--lima)}
 }
 /* conteúdo do cartaz sempre acima do anel decorativo */
 .poster>*{position:relative;z-index:1}
-.poster .mini-tag{color:var(--lima-preto);opacity:.75}
+.poster .mini-tag{color:var(--lima-preto);opacity:.9}
 .poster h3{font-size:clamp(34px,5vw,48px);margin-block:8px 16px}
 .poster .preco{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-block:16px}
 .poster .preco small{font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:14px}
@@ -291,6 +291,7 @@ nav.main a:hover{color:var(--lima)}
   border-radius:4px;padding:8px 16px;font-family:var(--body);font-size:16px;
 }
 .f-group select:focus,.f-group input[type=text]:focus{outline:2px solid var(--lima);outline-offset:1px}
+.f-group input[type=text]::placeholder{color:rgba(244,241,230,.58);opacity:1}
 .preview{
   background:var(--preto-3);border:1px dashed var(--osso-40);border-radius:8px;padding:16px;
   font-size:14.5px;color:var(--osso-60);white-space:pre-line;margin-bottom:24px;min-height:96px;
@@ -331,7 +332,10 @@ footer{border-top:1px solid var(--linha);padding-block:48px 96px;background:var(
 }
 #zap-float svg{width:32px;height:32px}
 
-/* ============ INTRO — manifesto de 1,4s, sobre o conteúdo ============ */
+/* ============ INTRO — contagem profissional: quadros pré-renderizados ============
+   Cada quadro (3 · 2 · 1 · RARO!) é um elemento próprio, já no tamanho final:
+   nenhuma troca de texto nem de font-size em tempo de execução — nenhum quadro
+   intermediário errado, cortado ou sobreposto pode existir. Só opacidade/escala. */
 #intro{
   position:fixed;inset:0;z-index:3000;background:#050504;color:var(--osso);
   display:flex;align-items:center;justify-content:center;text-align:center;
@@ -339,7 +343,36 @@ footer{border-top:1px solid var(--linha);padding-block:48px 96px;background:var(
 }
 #intro[hidden]{display:none}
 #intro.out{transform:translateY(-101%)}
-#intro-count{font-family:var(--disp);font-size:clamp(112px,22vw,176px);line-height:1;color:var(--lima)}
+.intro-stage{display:grid;place-items:center}
+.intro-step{
+  grid-area:1/1;opacity:0;pointer-events:none;white-space:nowrap;
+  font-family:var(--disp);font-weight:400;line-height:1;color:var(--lima);
+  will-change:opacity,transform;
+}
+.intro-step.n{font-size:clamp(112px,22vw,176px);animation:introNum .24s ease-out both}
+.intro-step.n:nth-child(2){animation-delay:.24s}
+.intro-step.n:nth-child(3){animation-delay:.48s}
+.intro-step.word{
+  font-size:clamp(56px,13vw,104px);letter-spacing:.04em;color:var(--osso);
+  animation:introWord .34s cubic-bezier(.22,1,.36,1) .72s both;
+}
+.intro-step.word .lm{color:var(--lima)}
+@keyframes introNum{
+  0%{opacity:0;transform:scale(.8)}
+  22%{opacity:1;transform:scale(1)}
+  78%{opacity:1;transform:scale(1.02)}
+  100%{opacity:0;transform:scale(1.06)}
+}
+@keyframes introWord{
+  0%{opacity:0;transform:scale(.86)}
+  100%{opacity:1;transform:scale(1)}
+}
+.intro-bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(244,241,230,.12);overflow:hidden}
+.intro-bar i{
+  display:block;height:100%;background:var(--lima);transform-origin:0 50%;transform:scaleX(0);
+  animation:introBarFill 1.25s linear both;
+}
+@keyframes introBarFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 html.intro-lock{overflow:hidden}
 
 /* ============ MOLDURA ÚNICA DE MÍDIA + PRESSÃO DISCRETA ============ */
@@ -468,7 +501,13 @@ a,button,label,select,input[type=text]{-webkit-tap-highlight-color:transparent}
 <body>
 
 <div id="intro" hidden aria-hidden="true">
-  <span id="intro-count">3</span>
+  <div class="intro-stage">
+    <span class="intro-step n">3</span>
+    <span class="intro-step n">2</span>
+    <span class="intro-step n">1</span>
+    <span class="intro-step word">RARO<span class="lm">!</span></span>
+  </div>
+  <div class="intro-bar" aria-hidden="true"><i></i></div>
 </div>
 
 <div id="progress" aria-hidden="true"></div>
@@ -629,7 +668,7 @@ a,button,label,select,input[type=text]{-webkit-tap-highlight-color:transparent}
         </article>
         <article class="svc-card lima rv">
           <span class="num" aria-hidden="true">02</span>
-          <p class="mini-tag" style="color:var(--lima-preto);opacity:.7">De onde você estiver</p>
+          <p class="mini-tag" style="color:var(--lima-preto);opacity:.85">De onde você estiver</p>
           <h3>Consultoria online</h3>
           <p>Treino montado pro seu objetivo e pra sua rotina, com acompanhamento do Gabriel mesmo à distância — é o formato dos resultados que você viu aqui em cima.</p>
           <ul>
@@ -876,31 +915,30 @@ a,button,label,select,input[type=text]{-webkit-tap-highlight-color:transparent}
   "use strict";
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------- INTRO — contagem de repetição: 3, 2, 1, RARO! (máx. 1,5s) ----------
-     Overlay sobre o conteúdo, que já existe embaixo. Toque pula.
-     Sem JS, o overlay nem existe (fica hidden). Reduced-motion: pula. */
+  /* ---------- INTRO — contagem 3 · 2 · 1 · RARO! (conteúdo até 1,25s) ----------
+     Os quadros são elementos pré-renderizados animados só via CSS (opacidade/escala):
+     o JS não troca texto nem tamanho — só agenda a saída. Overlay sobre o conteúdo,
+     que já existe embaixo. Clique/toque pula. Sem JS, o overlay nem existe (hidden).
+     Reduced-motion: removido na hora. Trava dura de 3s: nada fica preso na tela. */
   (function intro(){
     var el = document.getElementById("intro");
     if (!el) return;
     if (reduced) { el.remove(); return; }
-    var count = document.getElementById("intro-count"),
-        timers = [], done = false;
+    var done = false, tOut = null, tEnd = null;
     el.hidden = false;
     document.documentElement.classList.add("intro-lock");
-    function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
+    function cleanup(){
+      if (el.parentNode) el.remove();
+      document.documentElement.classList.remove("intro-lock");
+    }
     function finish(){
       if (done) return; done = true;
-      timers.forEach(clearTimeout);
+      clearTimeout(tOut);
       el.classList.add("out");
-      setTimeout(function(){
-        el.remove();
-        document.documentElement.classList.remove("intro-lock");
-      }, 380);
+      tEnd = setTimeout(cleanup, 400);
     }
-    later(function(){ count.textContent = "2"; }, 200);
-    later(function(){ count.textContent = "1"; }, 400);
-    later(function(){ count.textContent = "RARO!"; count.style.fontSize = "clamp(56px,13vw,104px)"; }, 600);
-    later(finish, 980);
+    tOut = setTimeout(finish, 1250);
+    setTimeout(function(){ clearTimeout(tEnd); cleanup(); }, 3000); /* trava dura */
     el.addEventListener("click", finish);
     el.addEventListener("touchstart", finish, { passive: true });
   })();
